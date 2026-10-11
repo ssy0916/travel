@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Inspect git state",
+			"type": "shell",
+			"command": "cmd /c \"git -C \"D:\\旅游业务\" status --short --branch && echo --- && git -C \"D:\\旅游业务\" rev-parse --is-inside-work-tree && echo --- && git -C \"D:\\旅游业务\" branch -a && echo --- && git -C \"D:\\旅游业务\" log --oneline --decorate --all --max-count=20\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Roll back untracked generated files",
+			"type": "shell",
+			"command": "cmd /c \"git -C \"D:\\旅游业务\" clean -fd && echo --- && git -C \"D:\\旅游业务\" status --short --branch\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		}
+	]
+}

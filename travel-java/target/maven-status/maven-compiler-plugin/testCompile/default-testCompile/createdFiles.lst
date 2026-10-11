@@ -1,0 +1,6 @@
+org\example\traveljavserver\service\AmapTravelDataServiceTest.class
+org\example\traveljavserver\service\TravelServiceTest.class
+org\example\traveljavserver\service\AmapClientTest.class
+org\example\traveljavserver\utils\LLMutilsTest.class
+org\example\traveljavserver\service\ItineraryFallbackBuilderTest.class
+org\example\traveljavserver\service\CityKnowledgeBaseTest.class

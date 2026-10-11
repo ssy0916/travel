@@ -1,0 +1,454 @@
+/**
+ * 旅行手帐主题 - 纸张、地图、票根、邮戳、拍立得、行程单、手写标注
+ * 实现方式：CSS 变量 + Vant 变量覆盖，不引入大字体包
+ */
+
+:root {
+  /* 色板 */
+  --paper-bg: #F6F1E7;           /* 米白纸底 */
+  --paper-white: #FFFDF8;        /* 纸白 */
+  --ink: #1F2328;                /* 墨色 */
+  --stamp-red: #C4473A;          /* 邮戳红 */
+  --lake-teal: #2F7F7A;          /* 湖水青 */
+  --bronze: #D9A441;             /* 旧铜黄 */
+  --paper-line: #D8CDBA;         /* 纸边线 */
+
+  /* 阴影：轻纸层 */
+  --shadow-paper: 0 1px 2px rgba(31, 35, 40, 0.05), 0 2px 8px rgba(31, 35, 40, 0.07);
+  --shadow-stamp: 0 1px 3px rgba(196, 71, 58, 0.22);
+
+  /* 圆角 */
+  --radius-paper: 6px;
+  --radius-photo: 4px;
+
+  /* 字体：标题系统衬线/楷体，正文系统无衬线 */
+  --font-serif: "Kaiti SC", "KaiTi", "STKaiti", "楷体", Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  /* 动效时长：150-250ms */
+  --duration-flip: 200ms;
+  --duration-stamp: 180ms;
+  --duration-sticker: 250ms;
+
+  /* Vant 变量覆盖 */
+  --van-primary-color: var(--stamp-red);
+  --van-success-color: var(--lake-teal);
+  --van-warning-color: var(--bronze);
+  --van-danger-color: var(--stamp-red);
+  --van-background: var(--paper-bg);
+  --van-background-2: var(--paper-white);
+  --van-text-color: var(--ink);
+  --van-text-color-2: #5A5245;
+  --van-text-color-3: #8A8171;
+  --van-border-color: var(--paper-line);
+  --van-active-color: #EFE7D8;
+  --van-radius-md: var(--radius-paper);
+  --van-font-family: var(--font-sans);
+
+  /* NavBar */
+  --van-nav-bar-background: var(--paper-bg);
+  --van-nav-bar-title-text-color: var(--ink);
+  --van-nav-bar-icon-color: var(--ink);
+  --van-nav-bar-text-color: var(--stamp-red);
+
+  /* Tabbar */
+  --van-tabbar-background: var(--paper-white);
+  --van-tabbar-item-active-color: var(--stamp-red);
+  --van-tabbar-item-active-background: transparent;
+  --van-tabbar-item-text-color: var(--van-text-color-3);
+
+  /* Button */
+  --van-button-primary-background: var(--stamp-red);
+  --van-button-primary-border-color: var(--stamp-red);
+  --van-button-border-radius: var(--radius-paper);
+
+  /* Card / Cell */
+  --van-card-background: var(--paper-white);
+  --van-cell-background: var(--paper-white);
+  --van-cell-border-color: var(--paper-line);
+  --van-cell-group-background: var(--paper-white);
+
+  /* Tag */
+  --van-tag-primary-color: var(--stamp-red);
+  --van-tag-success-color: var(--lake-teal);
+  --van-tag-warning-color: var(--bronze);
+
+  /* Search / Field */
+  --van-search-background: var(--paper-bg);
+  --van-search-content-background: var(--paper-white);
+  --van-field-input-text-color: var(--ink);
+
+  /* Popup / Dialog */
+  --van-popup-background: var(--paper-white);
+  --van-dialog-background: var(--paper-white);
+  --van-dialog-confirm-button-text-color: var(--stamp-red);
+
+  /* NoticeBar */
+  --van-notice-bar-background: #FBF3E4;
+  --van-notice-bar-text-color: #7A5A1E;
+
+  /* Collapse */
+  --van-collapse-item-content-background: var(--paper-white);
+}
+
+/* ============ 全局背景：纸张噪点 + 地图等高线（低透明度，性能优先） ============ */
+body {
+  background-color: var(--paper-bg);
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D8CDBA' stroke-width='0.6'%3E%3Cpath d='M-10,40 Q30,30 60,42 T130,40' opacity='0.35'/%3E%3Cpath d='M-10,58 Q30,50 60,60 T130,58' opacity='0.25'/%3E%3Cpath d='M-10,76 Q30,68 60,78 T130,76' opacity='0.18'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* 标题字体（衬线/楷体） */
+h1, h2, h3, .title-serif {
+  font-family: var(--font-serif);
+  color: var(--ink);
+}
+
+/* ============ 纸张卡片 ============ */
+.paper-card {
+  background: var(--paper-white);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+  position: relative;
+}
+
+/* ============ 票根卡片：两侧半圆缺口 + 虚线分隔 ============ */
+.ticket-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-card::before,
+.ticket-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: var(--paper-bg);
+  border-radius: 50%;
+  border: 1px solid var(--paper-line);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.ticket-card::before { left: -11px; }
+.ticket-card::after { right: -11px; }
+
+/* 票根内部分隔虚线 */
+.ticket-divider {
+  border-top: 1px dashed var(--paper-line);
+  margin: 12px 0;
+  position: relative;
+}
+
+.ticket-divider::before,
+.ticket-divider::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  background: var(--paper-bg);
+  border-radius: 50%;
+  border: 1px solid var(--paper-line);
+}
+
+.ticket-divider::before { left: -21px; }
+.ticket-divider::after { right: -21px; }
+
+/* ============ 邮戳：圆形印章，用于城市名等 ============ */
+.stamp {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 2px solid var(--stamp-red);
+  border-radius: 50%;
+  color: var(--stamp-red);
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: bold;
+  transform: rotate(-5deg);
+  box-shadow: var(--shadow-stamp);
+  background: rgba(255, 253, 248, 0.9);
+}
+
+/* ============ 拍立得照片框：白边 + 微旋转 ============ */
+.polaroid {
+  background: #fff;
+  padding: 8px 8px 24px;
+  border-radius: var(--radius-photo);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  transform: rotate(-2deg);
+  transition: transform var(--duration-sticker) ease;
+}
+
+.polaroid:active {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.polaroid img {
+  width: 100%;
+  border-radius: 2px;
+  display: block;
+}
+
+/* ============ 手写标注 ============ */
+.handwritten-note {
+  font-family: var(--font-serif);
+  color: var(--lake-teal);
+  font-size: 14px;
+  position: relative;
+  padding-left: 12px;
+}
+
+.handwritten-note::before {
+  content: '※';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  color: var(--bronze);
+}
+
+/* ============ 车票按钮：按压有盖章感 ============ */
+.ticket-btn {
+  background: var(--paper-white);
+  border: 2px solid var(--stamp-red);
+  color: var(--stamp-red);
+  font-family: var(--font-serif);
+  font-weight: bold;
+  padding: 8px 20px;
+  border-radius: var(--radius-paper);
+  position: relative;
+  min-height: 44px;
+  transition: transform var(--duration-stamp) ease, box-shadow var(--duration-stamp) ease;
+  box-shadow: var(--shadow-stamp);
+  cursor: pointer;
+}
+
+.ticket-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(196, 71, 58, 0.3);
+}
+
+/* ============ 信息标签：门票/开放时间 ============ */
+.info-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--lake-teal);
+  background: rgba(47, 127, 122, 0.08);
+  border: 1px solid rgba(47, 127, 122, 0.35);
+  border-radius: var(--radius-photo);
+}
+
+.info-tag--bronze {
+  color: #8A6414;
+  background: rgba(217, 164, 65, 0.1);
+  border-color: rgba(217, 164, 65, 0.45);
+}
+
+.info-tag--red {
+  color: var(--stamp-red);
+  background: rgba(196, 71, 58, 0.07);
+  border-color: rgba(196, 71, 58, 0.4);
+}
+
+/* ============ 时间轴：左侧轴线 + 节点 ============ */
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--paper-line) 0,
+    var(--paper-line) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 16px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  background: var(--paper-white);
+  border: 2px solid var(--stamp-red);
+  border-radius: 50%;
+}
+
+.timeline-time {
+  font-family: var(--font-serif);
+  color: var(--stamp-red);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ============ Vant 组件细节调整 ============ */
+
+/* NavBar：底部纸边线 */
+.van-nav-bar {
+  border-bottom: 1px solid var(--paper-line);
+}
+
+.van-nav-bar__title {
+  font-family: var(--font-serif);
+  font-weight: bold;
+}
+
+/* Tabbar：顶部纸边线 + 纸感 */
+.van-tabbar {
+  border-top: 1px solid var(--paper-line);
+  box-shadow: 0 -1px 4px rgba(31, 35, 40, 0.05);
+}
+
+/* Button：盖章按压感，不大面积渐变 */
+.van-button {
+  transition: transform var(--duration-stamp) ease, opacity var(--duration-stamp) ease;
+}
+
+.van-button:active::before {
+  opacity: 0.12;
+}
+
+.van-button--primary {
+  box-shadow: var(--shadow-stamp);
+}
+
+.van-button--primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(196, 71, 58, 0.3);
+}
+
+/* Card：纸张感 */
+.van-card {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+}
+
+/* Cell：纸边线分隔 */
+.van-cell::after {
+  border-bottom-color: var(--paper-line);
+}
+
+/* NoticeBar：旧铜黄信纸感 */
+.van-notice-bar {
+  border: 1px dashed rgba(217, 164, 65, 0.5);
+  border-radius: var(--radius-photo);
+}
+
+/* Tag：轻微邮票感 */
+.van-tag {
+  border-radius: var(--radius-photo);
+}
+
+/* Search：纸白搜索框 */
+.van-search__content {
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius-paper);
+}
+
+/* Dialog 圆角 */
+.van-dialog {
+  border-radius: var(--radius-paper);
+  border: 1px solid var(--paper-line);
+}
+
+/* ============ 动效：翻页 / 盖章 / 贴纸落下 ============ */
+@keyframes page-flip {
+  0% { transform: perspective(1000px) rotateY(0deg); opacity: 1; }
+  50% { transform: perspective(1000px) rotateY(-90deg); opacity: 0.5; }
+  100% { transform: perspective(1000px) rotateY(0deg); opacity: 1; }
+}
+
+.page-flip-enter-active {
+  animation: page-flip var(--duration-flip) ease;
+}
+
+@keyframes stamp-press {
+  0% { transform: scale(1.2) rotate(-5deg); opacity: 0; }
+  60% { transform: scale(0.95) rotate(-5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+}
+
+.stamp-enter-active {
+  animation: stamp-press var(--duration-stamp) ease;
+}
+
+@keyframes sticker-drop {
+  0% { transform: translateY(-20px) rotate(-10deg); opacity: 0; }
+  60% { transform: translateY(5px) rotate(2deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(-2deg); opacity: 1; }
+}
+
+.sticker-enter-active {
+  animation: sticker-drop var(--duration-sticker) ease;
+}
+
+/* ============ 移动端保障 ============ */
+
+/* 无横向滚动 */
+html, body {
+  overflow-x: hidden;
+}
+
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 可点区域：最小 44px */
+button, [role="button"], a {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 低端机优化：减弱阴影 */
+@media (max-width: 768px) {
+  .paper-card, .van-card {
+    box-shadow: 0 1px 4px rgba(31, 35, 40, 0.06);
+  }
+}
+
+/* 尊重系统减弱动效设置 */
+@media (prefers-reduced-motion: reduce) {
+  .page-flip-enter-active,
+  .stamp-enter-active,
+  .sticker-enter-active {
+    animation: none;
+  }
+
+  .polaroid, .ticket-btn, .van-button {
+    transition: none;
+  }
+}

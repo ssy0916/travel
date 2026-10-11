@@ -1,18 +1,7 @@
-server:
-  port: 3200
-
-  # 大模型（兼容 OpenAI 协议）；环境变量优先，未设置时使用下列默认值
-  llm:
-    base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
-    model: ${LLM_MODEL:deepseek-chat}
-    api-key: ${LLM_API_KEY:sk-155cafefef344fec985d94017849d5a1}
-
-  # 高德开放平台 Web 服务；未配置 Key 时地理编码/天气/POI 各节点自动降级
-  amap:
-    base-url: ${AMAP_BASE_URL:https://restapi.amap.com}
-    api-key: ${AMAP_API_KEY:}
-
 spring:
+  config:
+    import: "optional:file:./.env[.properties]"
+
   # H2 文件数据库：行程数据保存在项目运行目录的 ./data/travel
   datasource:
     url: jdbc:h2:file:./data/travel;AUTO_SERVER=TRUE
@@ -27,3 +16,17 @@ spring:
     properties:
       hibernate:
         format_sql: false
+
+server:
+  port: 3200
+
+  # 大模型（兼容 OpenAI 协议）；优先读取 .env / 环境变量，未配置时保持为空
+  llm:
+    base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
+    model: ${LLM_MODEL:deepseek-chat}
+    api-key: ${LLM_API_KEY:}
+
+  # 高德开放平台 Web 服务；未配置 Key 时地理编码/天气/POI 各节点自动降级
+  amap:
+    base-url: ${AMAP_BASE_URL:https://restapi.amap.com}
+    api-key: ${AMAP_API_KEY:}

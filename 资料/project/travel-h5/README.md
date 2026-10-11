@@ -14,29 +14,42 @@
 
 ### 1. 启动后端
 
-在一个终端窗口执行：
+先在 `travel-java` 目录创建本地 `.env` 文件，并填入你的真实密钥；不要提交到仓库：
 
 ```powershell
 cd D:\旅游业务\travel-java
-$env:LLM_API_KEY = "替换为你的大模型 API Key"
-$env:AMAP_API_KEY = "替换为你的高德 Web 服务 Key"
+Copy-Item .env.example .env
+notepad .env
+```
+
+编辑 `.env`，填入你的真实值：
+
+```dotenv
+LLM_BASE_URL=https://api.deepseek.com/v1
+LLM_MODEL=deepseek-chat
+LLM_API_KEY=你的大模型 API Key
+AMAP_API_KEY=你的高德 Web 服务 Key
+```
+
+然后在同一个终端启动后端：
+
+```powershell
+cd D:\旅游业务\travel-java
 .\mvnw.cmd spring-boot:run
 ```
 
-注意 PowerShell 中必须写成 `.\mvnw.cmd`（带 `.\` 前缀），只输入 `mvnw.cmd` 会提示“无法将 mvnw.cmd 项识别为 cmdlet”。这是 PowerShell 的安全机制，它默认不搜索当前目录。
+注意 PowerShell 中必须写成 ` .\mvnw.cmd `（带 ` .\ ` 前缀），只输入 `mvnw.cmd` 会提示“无法将 mvnw.cmd 项识别为 cmdlet”。这是 PowerShell 的安全机制，它默认不搜索当前目录。
 
 如果你使用的是命令提示符（CMD，提示符通常显示为 `D:\...>`），请改用 CMD 语法，并在同一个窗口启动后端：
 
 ```bat
 cd /d D:\旅游业务\travel-java
-set "LLM_API_KEY=替换为你的大模型 API Key"
-set "AMAP_API_KEY=替换为你的高德 Web 服务 Key"
 mvnw.cmd spring-boot:run
 ```
 
 PowerShell 的 `$env:名称 = "值"` 语法不能直接在 CMD 中执行；CMD 设置的环境变量只在当前窗口有效。若 Key 中包含 `%` 等 CMD 特殊字符，建议改用 PowerShell 或 IDE 的环境变量配置，避免值被命令行解释。
 
-如果执行 `.\mvnw.cmd` 后提示 `'powershell' 不是内部或外部命令` 和 `Cannot start maven from wrapper`，说明当前终端的 PATH 缺少 Windows PowerShell。Maven Wrapper 脚本内部依赖它。先在当前窗口执行下面这行，再重新启动后端：
+如果执行 ` .\mvnw.cmd ` 后提示 `'powershell' 不是内部或外部命令` 和 `Cannot start maven from wrapper`，说明当前终端的 PATH 缺少 Windows PowerShell。Maven Wrapper 脚本内部依赖它。先在当前窗口执行下面这行，再重新启动后端：
 
 ```powershell
 $env:Path += ";C:\Windows\System32\WindowsPowerShell\v1.0"
@@ -45,7 +58,7 @@ $env:Path += ";C:\Windows\System32\WindowsPowerShell\v1.0"
 
 该行只对当前窗口生效；要永久修复，请把 `C:\Windows\System32\WindowsPowerShell\v1.0` 加入系统环境变量 Path。
 
-大模型 Key 和高德 Key 都是可选的。没有配置时，服务仍可启动，但行程推荐会使用降级内容，聊天功能也无法正常调用大模型。Key 只应放在本机环境变量或部署平台的密钥管理功能中，不能提交到仓库或写进前端代码。
+大模型 Key 和高德 Key 都是可选的。没有配置时，服务仍可启动，但行程推荐会使用降级内容，聊天功能也无法正常调用大模型。Key 只应放在本机 `.env`、环境变量或部署平台的密钥管理功能中，不能提交到仓库、写进前端代码，也不要写进 README 或其它文档。
 
 后端启动后，可访问 `http://localhost:3200/api/travel/hello` 检查服务是否正常。
 

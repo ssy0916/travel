@@ -62,6 +62,30 @@ $env:Path += ";C:\Windows\System32\WindowsPowerShell\v1.0"
 
 后端启动后，可访问 `http://localhost:3200/api/travel/hello` 检查服务是否正常。
 
+### 可选：切换到 MySQL
+
+默认仍使用 H2 文件数据库。启用 MySQL 前先创建 `travel` 数据库，并在后端目录设置连接环境变量；真实数据库密码只放在本机环境变量或密钥管理中：
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "mysql"
+$env:MYSQL_URL = "jdbc:mysql://localhost:3306/travel?serverTimezone=UTC"
+$env:MYSQL_USERNAME = "travel"
+$env:MYSQL_PASSWORD = "本机数据库密码"
+mvn spring-boot:run
+```
+
+`mysql` profile 使用 Flyway 执行 `src/main/resources/db/migration/mysql/` 下的版本化迁移，Hibernate 只做 schema 校验，不自动改表。切回默认 H2 时移除 `SPRING_PROFILES_ACTIVE`。运行后端测试：`mvn test`。
+
+### 后端并发冒烟测试
+
+先启动后端，再运行标准库脚本测量行程列表接口的并发延迟：
+
+```powershell
+python scripts\trip-load-test.py --requests 200 --concurrency 20
+```
+
+脚本输出成功数、吞吐量及 P50/P95/最大延迟；这是本机接口冒烟数据，不等同于生产环境容量结论。
+
 ### 2. 启动前端
 
 在另一个终端窗口执行：

@@ -2,6 +2,9 @@ spring:
   config:
     import: "optional:file:./.env[.properties]"
 
+  flyway:
+    enabled: false
+
   # H2 文件数据库：行程数据保存在项目运行目录的 ./data/travel
   datasource:
     url: jdbc:h2:file:./data/travel;AUTO_SERVER=TRUE
